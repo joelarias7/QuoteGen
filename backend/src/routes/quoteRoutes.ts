@@ -49,7 +49,7 @@ router.get("/random", async (req, res) => {
       FROM quotes q
       JOIN categories c
         ON q.category_id = c.id
-      WHERE c.name = $1
+      WHERE LOWER(c.name) = LOWER($1)
       ORDER BY RANDOM()
       LIMIT 1;
       `,
@@ -65,6 +65,47 @@ router.get("/random", async (req, res) => {
     res.status(200).json(result.rows[0]);
   } catch (error) {
     console.error("Error fetching random quote:", error);
+
+    res.status(500).json({
+      message: "Internal server error."
+    });
+  }
+});
+
+router.get("/", async (req, res) => {
+  const { category } = req.query;
+
+  if (!category || typeof category !== "string") {
+    return res.status(400).json({
+      message: "Category is required."
+    });
+  }
+
+  try {
+    const result = await pool.query(
+      `
+      SELECT
+        q.id,
+        q.text,
+        q.author,
+        c.name AS category
+      FROM quotes q
+      JOIN categories c
+        ON q.category_id = c.id
+      WHERE LOWER(c.name) = LOWER($1);
+      `,
+      [category]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: "No quotes found for this category."
+      });
+    }
+
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Error fetching quotes:", error);
 
     res.status(500).json({
       message: "Internal server error."

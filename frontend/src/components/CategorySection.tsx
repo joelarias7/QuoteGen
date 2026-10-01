@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getRandomQuote } from "../services/quoteService";
 import type { Quote } from "../types/Quote";
 import QuoteCard from "./QuoteCard";
+import { Link } from "react-router-dom";
 
 interface CategorySectionProps {
   category: string;
@@ -26,14 +27,18 @@ function CategorySection({ category }: CategorySectionProps) {
   }, [category]);
 
   return (
-    <section>
-      <h2>{category}</h2>
+  <section>
+    <h2>{category}</h2>
 
-      {error && <p>{error}</p>}
+    {error && <p>{error}</p>}
 
-      {quote && <QuoteCard quote={quote} />}
-    </section>
-  );
+    {quote && (
+      <Link to={`/categories/${category.toLowerCase()}`}>
+        <QuoteCard quote={quote} />
+      </Link>
+    )}
+  </section>
+);
 }
 
 export default CategorySection;

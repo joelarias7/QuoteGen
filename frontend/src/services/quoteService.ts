@@ -12,6 +12,20 @@ export async function getQuoteOfTheDay(): Promise<Quote> {
   return response.json();
 }
 
+export async function getQuotesByCategory(
+  category: string
+): Promise<Quote[]> {
+  const response = await fetch(
+    `${API_URL}?category=${encodeURIComponent(category)}`
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch category quotes");
+  }
+
+  return response.json();
+}
+
 export async function getRandomQuote(category: string): Promise<Quote> {
   const response = await fetch(
     `${API_URL}/random?category=${encodeURIComponent(category)}`
